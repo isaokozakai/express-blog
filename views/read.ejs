@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="/style.css">
+  <title>Document</title>
+</head>
+<body>
+  <%- include("modal") %>
+  <%- include("partials/header") %>
+  <main class="container">
+    <div id="header">
+      <h1><%= post.title %></h1>
+      <div id="sub-header">
+        <h3 id="author"><%= post.author %></h3>
+        <p><%= new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+        </p>
+      </div>
+    </div>
+    <div id="content">
+      <p><%= post.content %></p>
+    </div>
+    <div id="content-footer">
+      <div>
+        <a class="edit" href=<%=`/posts/${post._id}/form`%>>Edit</a>
+        <button value=<%=post._id%> id="delete-confirmation">Delete</button>
+      </div>
+    </div>
+    <div id="comments">
+      <h3>Comments</h3>
+      <% if (post.comments.length > 0) { %>
+        <% for(let i = 0; i < post.comments.length; i++) { %>
+        <div class="comment">
+          <div>
+            <div>
+              <span><%= post.comments[i].name %></span><% const date = post.comments[i].date %>
+              <span class="comment-date"><%= new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %></span>
+            </div>
+            <p><%= post.comments[i].commentContent %></p>
+          </div>
+        </div>
+        <% } %>
+      <% } else { %>
+      <p>This post has no comment yet.</p>
+      <% } %>
+    </div>
+
+    <form id="comment-form">
+      <input name="postId" type="hidden" value="<%= post._id %>">
+      <input class="commenter" name="name" placeholder="Name" required>
+      <textarea rows="3" cols="50" class='comment-content' name="content" placeholder="Comment" required></textarea>
+      <button class="save-comment-btn">Save</button>
+    </form>
+  </main>
+  <script src="/js/buttonSelect.js"></script>
+  <script>
+    const deleteConf = document.getElementById('delete-confirmation');
+    const overlay = document.getElementById('overlay');
+    const modal = document.getElementById('modal');
+    const deleteBtn = document.getElementById('delete');
+    deleteConf.addEventListener('click', (e) => {
+      overlay.style.display = 'block';
+      modal.style.display = 'block';
+      deleteBtn.value = e.target.value;
+    });
+    function closeModal() {
+      overlay.style.display = 'none';
+      modal.style.display = 'none';
+    }
+    document.addEventListener('click', (e) => {
+      if (e.target == overlay) { closeModal(); }
+    });
+    document.getElementById('close').addEventListener('click', (e) => closeModal());
+    document.getElementById('cancel').addEventListener('click', (e) => closeModal());
+    deleteBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      fetch('/posts/' + e.target.value, { method: 'DELETE' }).then(response => {
+        if (response.redirected) {
+          window.location.href = response.url;
+        }
+      });
+    });
+
+    const commentForm = document.getElementById('comment-form');
+    commentForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      fetch('/posts/' + e.target.elements.postId.value + '/comments', {
+        method: 'POST',
+        body: new FormData(this)
+      }).then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
