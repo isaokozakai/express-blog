@@ -13,8 +13,7 @@ collection name: posts
     "date": string,
     "name": string, 
     "commentContent": string
-  }],
-  "like": number      //for vote
+  }]
 }]
 ```
 # Routing
@@ -31,12 +30,6 @@ collection name: posts
 
 ``POST /posts/:id/comments`` =      Leave a comment to a post
 
-``PUT /posts/:id/vote?rating=0`` =  Upvote or downvote a post. rating = 0 means a downvote a post and rating = 1 means upvote a post.
-
 ``PUT /posts/:id/update`` =       Update a post
 
 ``DELETE /posts/:id`` =           Delete a post
-
-``DELETE /posts`` =               Delete ALL posts(maybe add an 'are you sure?' message :D)
-
-``GET /search?name=Blogname`` =     Search for a specific post by name. Will redirect to GET "/posts/:id" if manages to find a post or back to the same page if it didn't find a post
